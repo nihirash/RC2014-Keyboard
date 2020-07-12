@@ -7,6 +7,9 @@
 
 // Modified for serial output by Spencer Owen
 // 2014-05-02
+//
+// Modified to be usable with CP/M by Alexander Sharikhin
+// 2020-07-12
 
 #define NUM_ROWS 8
 #define NUM_COLS 5
@@ -26,9 +29,9 @@ byte keyMap[NUM_ROWS][NUM_COLS] = {
 // keymap if Caps Shift is pressed
 // # gives Â£, \\ gives #
 byte keyMapShifted[NUM_ROWS][NUM_COLS] = {
-  { 'L', '$', '\\', '@', 27 },
+  { 19, '$', '\\', '@', 27 },
   { 'T', 'R', 'E', 'W', 'Q' },
-  { 'D', 'U', 'R', '!', 127 },
+  { 24, 5, 4, 11, 8 },
   { 'G', 'F', 'D', 'S', 'A' },
   { 'Y', 'U', 'I', 'O', 'P' },
   { 'V', 'C', 'X', 'Z', 0 },
@@ -42,18 +45,25 @@ byte keyMapAlt[NUM_ROWS][NUM_COLS] = {
   {'>' , '<' , '>' , '=' , '<'},
   {'&', '\'', '(', ')', '_'},
   {'}' , '{' , '\\' , '|' , '_'},
-  {'[', ']', '#', ';', '\"'},
+  {'[', ']', '~', ';', '\"'},
   {'/', '?', '£', ':', 0},
   {'^', '-', '+', '=', 13},
   {'*', ',', '.', 0, ' '}
 };
 
+byte extLayer[NUM_ROWS][NUM_COLS] = {
+  { '5', '4', '~', '`', 27 },
+  { 20, 18, 5, 23, 17 },
+  { '6', '7', '8', '9', 127 },
+  { 7, 6, 4, 19, 1 },
+  { 25, 21, 9, 15, 16 },
+  { 22, 3, 24, 26, 0 },
+  { 8, 10, 11, 12, 13 },
+  { 2, 14, 13, 0, 28 }
+};
 
 // Global variables
-
 int debounceCount[NUM_ROWS][NUM_COLS];
-//int altKeyFlag;
-//int ctrlKeyFlag;
 
 // define the row and column pins
 byte colPins[NUM_COLS] = {
@@ -212,21 +222,21 @@ void pressKey(byte r, byte c, bool shifted, bool ss)
 {
   byte key = 0;
 
-  if (shifted == true) {
+  
+  if (ss == true && shifted == true) {
+    key = extLayer[r][c];
+  } else if (shifted == true) {
     key = keyMapShifted[r][c];
-  }
-
-  if (ss == true) {
+  } else if (ss == true) {
     key = keyMapAlt[r][c];
   }
-
-  if (ss == false && shifted == false) {
+  else {
     key = keyMap[r][c];
   }
+
+  
   if (key > 0)
   {
-    // send the key
-    //Keyboard.write(key);
     Serial.write(key);
   }
 }
