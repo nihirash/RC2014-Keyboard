@@ -26,10 +26,21 @@ byte keyMap[NUM_ROWS][NUM_COLS] = {
   { 'b', 'n', 'm', 0, ' ' }
 };
 
+byte capsLock[NUM_ROWS][NUM_COLS] = {
+  { '5', '4', '3', '2', '1' },
+  { 'T', 'R', 'E', 'W', 'Q' },
+  { '6', '7', '8', '9', '0' },
+  { 'G', 'F', 'D', 'S', 'A' },
+  { 'Y', 'U', 'I', 'O', 'P' },
+  { 'V', 'C', 'X', 'Z', 0 },
+  { 'H', 'J', 'K', 'L', 13 },
+  { 'B', 'N', 'M', 0, ' ' }
+};
+
 // keymap if Caps Shift is pressed
 // # gives Â£, \\ gives #
 byte keyMapShifted[NUM_ROWS][NUM_COLS] = {
-  { 19, '$', '\\', '@', 27 },
+  { 19, '$', '\\', 255, 27 },
   { 'T', 'R', 'E', 'W', 'Q' },
   { 24, 5, 4, 11, 8 },
   { 'G', 'F', 'D', 'S', 'A' },
@@ -52,7 +63,7 @@ byte keyMapAlt[NUM_ROWS][NUM_COLS] = {
 };
 
 byte extLayer[NUM_ROWS][NUM_COLS] = {
-  { '5', '4', '~', '`', 27 },
+  { 31, 30, 29, 28, 27 },
   { 20, 18, 5, 23, 17 },
   { '6', '7', '8', '9', 127 },
   { 7, 6, 4, 19, 1 },
@@ -64,6 +75,7 @@ byte extLayer[NUM_ROWS][NUM_COLS] = {
 
 // Global variables
 int debounceCount[NUM_ROWS][NUM_COLS];
+int isCaps = 0;
 
 // define the row and column pins
 byte colPins[NUM_COLS] = {
@@ -231,10 +243,13 @@ void pressKey(byte r, byte c, bool shifted, bool ss)
     key = keyMapAlt[r][c];
   }
   else {
-    key = keyMap[r][c];
+    key = isCaps != 0 ? capsLock[r][c] : keyMap[r][c];
   }
 
-  
+  if (key == 255) {
+    isCaps = !isCaps;
+    key = 0;  
+  }
   if (key > 0)
   {
     Serial.write(key);
